@@ -1,5 +1,7 @@
 const express = require('express');
+const db = require('./config/connection');
 // run npm install mongodb and require mongodb and mongoClietn class
+const routes = require('./routes')
 const {MongoClient} = require ('mongodb');
 
 const app = express();
@@ -14,7 +16,7 @@ const client = new MongoClient(connectionStringURI);
 let db;
 
 //Create variable to hold our database name
-const dbName = 'shelterDb';
+const dbName = 'socialDB';
 
 //Connect method to connect to mongo server
 client.connect()
