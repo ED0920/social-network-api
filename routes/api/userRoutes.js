@@ -43,9 +43,9 @@ router.post('/:userId/reaction', (req, res) =>{
     res.status(200).json({message:'post reaction'})
 });
 
-//delete reaction
+//delete reaction 
 router.delete('/:userId/reaction', (req,res) => {
     res.status(200).json({message:'reaction deleted'})
-})
+});
 
 module.exports = router;
