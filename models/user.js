@@ -34,6 +34,8 @@ const userSchema = new Schema({
       id: false,
 });
 
+
+// create a virtual to count friends
 userSchema.virtual('countFriends')
 // get function to retrieve username
 .get(function () {
@@ -41,7 +43,6 @@ userSchema.virtual('countFriends')
 });
 
 // intitalize user model
-
 const user = model('user', userSchema);
 
 model.exports = user;
