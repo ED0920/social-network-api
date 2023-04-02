@@ -4,7 +4,7 @@ const { Schema, model } = require('mongoose');
 
 const userSchema = new Schema({
     username: {
-        type:String,
+        type: String,
         unique: true,
         required: true,
         trim: true,
@@ -17,11 +17,11 @@ const userSchema = new Schema({
         match: [/.+\@.+\..+/],
     },
     thoughts:[{
-        type: Schema.Types.OnjectId,
+        type: Schema.Types.ObjectId,
         ref: thoughts,
     }],
     friends: {
-        type: Schema.Types.OnjectId,
+        type: Schema.Types.ObjectId,
         ref: user,
     },
 }, 
