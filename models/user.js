@@ -1,5 +1,4 @@
 const { Schema, model } = require('mongoose');
-
 // Create schema
 
 const userSchema = new Schema({
@@ -16,33 +15,30 @@ const userSchema = new Schema({
         //match email address
         match: [/.+\@.+\..+/],
     },
-    thoughts:[{
+    thoughts: [{
         type: Schema.Types.ObjectId,
-        ref: thoughts,
+        ref: 'Thought',
     }],
-    friends: {
-        type: Schema.Types.ObjectId,
-        ref: user,
-    },
-}, 
-{
- // Mongoose supports two Schema options to transform Objects after querying MongoDb: toJSON and toObject.
-    // Here we are indicating that we want virtuals to be included with our response, overriding the default behavior
-    toJSON: {
-        virtuals: true,
-      },
-      id: false,
-});
+    friends: [this],
+},
+    {
+        // Mongoose supports two Schema options to transform Objects after querying MongoDb: toJSON and toObject.
+        // Here we are indicating that we want virtuals to be included with our response, overriding the default behavior
+        toJSON: {
+            virtuals: true,
+        },
+        id: false,
+    });
 
 
 // create a virtual to count friends
 userSchema.virtual('countFriends')
-// get function to retrieve username
-.get(function () {
-    return `${this.friends.length}`
-});
+    // get function to retrieve username
+    .get(function () {
+        return `${this.friends.length}`
+    });
 
 // intitalize user model
-const user = model('user', userSchema);
+const User = model('user', userSchema);
 
-model.exports = user;
+module.exports = User;
