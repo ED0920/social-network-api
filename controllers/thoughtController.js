@@ -31,7 +31,6 @@ const thoughtController = {
     createThought: async (req, res) => {
         const thought = await Thought.create(req.body)
         await thought.populate("user")
-
         !thought
             ? res.status(400).json({ message: 'thought not created' })
             : res.json(thought)

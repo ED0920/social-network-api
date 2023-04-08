@@ -47,20 +47,20 @@ const userController = {
             })
     },
     // add afriend to friend's list
-    addFriend(req, res) {
-        User.findOneAndUpdate(
-            { _id: req.params.userId },
-            { $push: { friends: req.body } },
-            { runValidators: true, new: true }
-        )
-            .populate({
-                path: 'friends',
-            })
-            .then((dbUserData) =>
-                !User ? res.status(404).json({ message: 'No user with this id' })
-                    : res.join(dbUserData)
-            )
-            .catch((err) => res.status(500).json(err));
+    addFriend: async (req, res) => {
+        try {
+            const user = await User.findOneAndUpdate(
+                { _id: req.params.userId },
+                { $addToSet: { friends: req.params.friendId } },
+                { runValidators: true, new: true }
+            ).populate("friends")
+
+            !user ? res.status(404).json({ message: 'No user with this id' })
+                : res.json(user)
+        } catch (err) {
+            console.log(err)
+            res.status(500).json(err);
+        }
     },
 
     //find user and delete
@@ -76,16 +76,35 @@ const userController = {
     },
 
     //delete friend from friend's list
-    deleteFriend(req, res) {
-        User.findOneAndDelete(
-            { _id: req.params.id },
-        )
-            .then((dbUserData) =>
-                !dbUserData ? res.status(404).json({ message: 'No user found with this id!' })
-                    : res.json(dbUserData)
-            )
-            .catch((err) => res.status(500).json(err));
-    }
+
+    deleteFriend: async (req, res) => {
+        try {
+            const user = await User.findOneAndUpdate(
+                { _id: req.params.userId },
+                { $pull: { friends: { $in: [req.params.friendId] } } },
+                { runValidators: true, new: true }
+            ).populate("friends")
+
+            !user ? res.status(404).json({ message: 'No user with this id' })
+                : res.json(user)
+        } catch (err) {
+            console.log(err)
+            res.status(500).json(err);
+        }
+    },
+
+    // deleteFriend(req, res) {
+    //     User.findOneAndDelete(
+    //         { _id: req.params.id },
+    //     )
+    //         .then((dbUserData) =>
+    //             !dbUserData ? res.status(404).json({ message: 'No user found with this id!' })
+    //                 : res.json(dbUserData)
+    //         )
+    //         .catch((err) => res.status(500).json(err));
+    // }
 };
+
+
 
 module.exports = userController;
