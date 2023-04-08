@@ -1,4 +1,4 @@
-const { Thought } = require('../models');
+const { Thought, Reaction } = require('../models');
 
 // create controller for thought
 const thoughtController = {
@@ -7,23 +7,25 @@ const thoughtController = {
         try {
             const thoughts = await Thought
                 .find()
-            // .populate("user")
+                .populate("user")
 
             res.json(thoughts)
 
         } catch (err) {
+            console.log(err)
             res.status(500).json(err)
         }
     },
     //get single thought
-    getOneThought(req, res) {
-        Thought.findOne({ _id: req.params.id })
-            .then((thought) =>
-                !thought
-                    ? res.status(400).json({ message: 'No thought found with this id' })
-                    : res.json(thought)
-            )
-            .catch((err) => res.status(500).json(err));
+    getOneThought: async (req, res) => {
+        const thought = await Thought
+            .findOne({ _id: req.params.id })
+            .populate("user")
+
+        !thought
+            ? res.status(400).json({ message: 'No thought found with this id' })
+            : res.json(thought)
+
     },
     //create new thought
     createThought: async (req, res) => {
@@ -38,7 +40,8 @@ const thoughtController = {
     // find and update thought
     updateThought(req, res) {
         Thought.findOneAndUpdate(
-            { _id: req.params.id })
+            { _id: req.params.id },
+            { runValidators: true, new: true })
             .then((thought) =>
                 !thought
                     ? res.status(400).json({ message: 'no thought found with that id' })
@@ -61,33 +64,30 @@ const thoughtController = {
     },
 
     // create reactions on single thought
-    addReaction(req, res) {
-        Thought.findOneAndUpdate(
-            { _id: req.params.id },
-            { $addToSet: { reaction: req.body } },
-            { runValidators: true, new: true }
-        )
-            .then((thought) =>
-                !thought
-                    ? res.status(400).json({ message: 'no thought with this Id' })
-                    : res.json(thought)
-            )
-            .catch((err) => res.stauts(500).json(err))
+    addReaction: async (req, res) => {
+        try {
+            const reaction = await Reaction.create(req.body)
+
+            const thought = await Thought.findOneAndUpdate(
+                { _id: req.params.thoughtsId },
+                { $addToSet: { reactions: reaction } },
+                { runValidators: true, new: true }
+            ).populate({
+                path: 'reactions'
+            })
+
+            !thought
+                ? res.status(400).json({ message: 'no thought with this Id' })
+                : res.json(thought)
+        } catch (err) {
+            res.status(500).json(err)
+        }
     },
 
     // delete reactions on a single thought
-    deleteReaction(req, res) {
-        Thought.findByIdAndDelete(
-            { _id: req.params.id },
-            { $pull: { reaction: { reactionsId: req.params.reactionId } } },
-            { runVAlidators: true, new: true }
-        )
-            .then((thought) =>
-                !thought
-                    ? res.status(404).json({ message: 'No thought found with this id' })
-                    : res.json(thought)
-            )
-            .catch((err) => res.status(500).json(err));
+    deleteReaction: async (req, res) => {
+        const reaction = await Reaction.findByIdAndDelete(req.params.reactionId)
+        res.json(reaction)
     }
 };
 

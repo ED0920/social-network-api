@@ -49,10 +49,13 @@ const userController = {
     // add afriend to friend's list
     addFriend(req, res) {
         User.findOneAndUpdate(
-            { _id: req.params.id },
-            { $addToSet: { responses: req.body } },
+            { _id: req.params.userId },
+            { $push: { friends: req.body } },
             { runValidators: true, new: true }
         )
+            .populate({
+                path: 'friends',
+            })
             .then((dbUserData) =>
                 !User ? res.status(404).json({ message: 'No user with this id' })
                     : res.join(dbUserData)
@@ -62,8 +65,8 @@ const userController = {
 
     //find user and delete
     deleteUser(req, res) {
-        User.findOneAndDelete(
-            { _id: req.params.id })
+        User.findOneAndUpdate(
+            { _id: req.params.userId })
             .then(dbUserData =>
                 !dbUserData
                     ? res.status(404).json({ message: 'no user with that id' })
